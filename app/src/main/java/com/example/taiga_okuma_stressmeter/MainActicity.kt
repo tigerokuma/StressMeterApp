@@ -39,7 +39,7 @@ class MainActivity : ComponentActivity() {
                         AppDrawer(
                             modifier = Modifier
                                 .width(180.dp) // Half the screen width (adjust as necessary)
-                                .background(Color.White.copy(alpha = 0.8f)) // White with opacity
+                                .background(Color.White) // White with opacity
                         ) {
                             navController.navigate(it)
                             scope.launch { drawerState.close() } // Close drawer when item is clicked
