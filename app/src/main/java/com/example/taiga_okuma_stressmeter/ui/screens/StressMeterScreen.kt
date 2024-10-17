@@ -22,10 +22,9 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StressMeterScreen(
-    onSubmit: (Int) -> Unit,
     stressViewModel: StressViewModel = viewModel(),
     onImageClick: (Int) -> Unit,
-    context: Context  // Add context as a parameter
+    context: Context
 ) {
     val coroutineScope = rememberCoroutineScope()
 
@@ -40,68 +39,51 @@ fun StressMeterScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding)
-                    .padding(16.dp)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.SpaceBetween
             ) {
-                Text(
-                    "Touch the image that best captures how stressed you feel right now",
-                    modifier = Modifier.padding(16.dp)
-                )
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        "Touch the image that best captures how stressed you feel right now",
+                        modifier = Modifier.padding(16.dp)
+                    )
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(4),
-                    modifier = Modifier.fillMaxSize().padding(4.dp),
-                    contentPadding = PaddingValues(4.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
-                    horizontalArrangement = Arrangement.spacedBy(4.dp)
-                ) {
-                    itemsIndexed(stressViewModel.currentImages) { index, imageResId ->
-                        Image(
-                            painter = painterResource(id = imageResId),
-                            contentDescription = "Stress Image $imageResId",
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .aspectRatio(1f)
-                                .clickable {
-                                    onImageClick(imageResId)
-                                    stressViewModel.selectStressLevel(index + 1)
-                                }
-                        )
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(4),
+                        modifier = Modifier.fillMaxWidth().padding(4.dp),
+                        contentPadding = PaddingValues(4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        itemsIndexed(stressViewModel.currentImages) { index, imageResId ->
+                            Image(
+                                painter = painterResource(id = imageResId),
+                                contentDescription = "Stress Image $imageResId",
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .aspectRatio(1f)
+                                    .clickable {
+                                        onImageClick(imageResId)
+                                    }
+                            )
+                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text("Selected Stress Level: ${if (stressViewModel.selectedStressLevel != -1) stressViewModel.selectedStressLevel else "None"}")
-
-                Row(modifier = Modifier.padding(16.dp)) {
-                    Button(
-                        onClick = {
-                            if (stressViewModel.selectedStressLevel != -1) {
-                                val timestamp = System.currentTimeMillis().toString()
-
-                                coroutineScope.launch {
-                                    stressViewModel.addStressData(
-                                        context,  // Pass context to save the CSV
-                                        timestamp,
-                                        stressViewModel.selectedStressLevel
-                                    )
-                                }
-
-                                onSubmit(stressViewModel.selectedStressLevel)
-                            }
-                        },
-                        modifier = Modifier.padding(end = 16.dp),
-                        enabled = stressViewModel.selectedStressLevel != -1
-                    ) {
-                        Text("Submit")
-                    }
-
-                    Button(
-                        onClick = { stressViewModel.loadNextPage() },
-                        enabled = stressViewModel.hasMoreImages
-                    ) {
-                        Text("More Images")
-                    }
+                // "More Images" button
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            stressViewModel.shuffleImages()  // Shuffle images
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                ) {
+                    Text("More Images")
                 }
             }
         }

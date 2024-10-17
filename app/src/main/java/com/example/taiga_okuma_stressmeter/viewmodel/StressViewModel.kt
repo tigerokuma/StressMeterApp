@@ -22,9 +22,8 @@ class StressViewModel : ViewModel() {
     // Images per page
     val imagesPerPage = 16
 
-
     // All images
-    val allImages = listOf(
+    private val allImages = listOf(
         R.drawable.fish_normal017,
         R.drawable.psm_alarm_clock,
         R.drawable.psm_alarm_clock2,
@@ -76,6 +75,10 @@ class StressViewModel : ViewModel() {
         R.drawable.psm_yoga4
     )
 
+    // Track the current set of images (mutable state)
+    var currentImages by mutableStateOf<List<Int>>(emptyList())
+        private set
+
     // Stress data storage
     var stressDataList by mutableStateOf<List<StressData>>(emptyList())
         private set
@@ -91,31 +94,34 @@ class StressViewModel : ViewModel() {
         CSVUtil.saveStressData(context, StressData(timestamp, stressLevel))
     }
 
-
-
     // Function to load stress data from CSV
     fun loadStressData(context: Context) {
         stressDataList = CSVUtil.loadStressData(context)
     }
 
-    // Get the current set of images (for the current page)
-    val currentImages: List<Int>
-        get() = allImages.drop(currentPage * imagesPerPage).take(imagesPerPage)
-
-    // Check if there are more images to load
-    val hasMoreImages: Boolean
-        get() = (currentPage + 1) * imagesPerPage < allImages.size
+    // Shuffle the image bank and get only 16 images
+    fun shuffleImages() {
+        currentImages = allImages.shuffled().take(imagesPerPage)
+    }
 
     // Select stress level based on image click
     fun selectStressLevel(level: Int) {
         selectedStressLevel = level
     }
 
-    // Load the next set of images
+    // Load the next set of images (currently not needed, replaced by shuffling)
     fun loadNextPage() {
         if (hasMoreImages) {
             currentPage++
         }
     }
 
+    // Check if there are more images to load
+    val hasMoreImages: Boolean
+        get() = (currentPage + 1) * imagesPerPage < allImages.size
+
+    init {
+        // Initially shuffle images when ViewModel is created
+        shuffleImages()
+    }
 }
