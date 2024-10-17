@@ -1,5 +1,6 @@
 package com.example.taiga_okuma_stressmeter.ui.screens
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,8 +24,11 @@ import kotlinx.coroutines.launch
 fun StressMeterScreen(
     onSubmit: (Int) -> Unit,
     stressViewModel: StressViewModel = viewModel(),
-    onImageClick: (Int) -> Unit  // Updated to pass the image resource ID
+    onImageClick: (Int) -> Unit,
+    context: Context  // Add context as a parameter
 ) {
+    val coroutineScope = rememberCoroutineScope()
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -35,7 +39,7 @@ fun StressMeterScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(innerPadding) // Use the padding provided by Scaffold
+                    .padding(innerPadding)
                     .padding(16.dp)
             ) {
                 Text(
@@ -43,24 +47,23 @@ fun StressMeterScreen(
                     modifier = Modifier.padding(16.dp)
                 )
 
-                // Display a 4x4 grid of images from local drawable resources
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(4), // 4 columns
+                    columns = GridCells.Fixed(4),
                     modifier = Modifier.fillMaxSize().padding(4.dp),
                     contentPadding = PaddingValues(4.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp), // Spacing between rows
-                    horizontalArrangement = Arrangement.spacedBy(4.dp) // Spacing between columns
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(4.dp)
                 ) {
                     itemsIndexed(stressViewModel.currentImages) { index, imageResId ->
                         Image(
-                            painter = painterResource(id = imageResId),  // Load images from drawable
+                            painter = painterResource(id = imageResId),
                             contentDescription = "Stress Image $imageResId",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
-                                .aspectRatio(1f)  // Ensures images have a 1:1 aspect ratio
+                                .aspectRatio(1f)
                                 .clickable {
-                                    // Pass the actual image resource ID on click
                                     onImageClick(imageResId)
+                                    stressViewModel.selectStressLevel(index + 1)
                                 }
                         )
                     }
@@ -68,27 +71,34 @@ fun StressMeterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Show the selected stress level and a submit button
                 Text("Selected Stress Level: ${if (stressViewModel.selectedStressLevel != -1) stressViewModel.selectedStressLevel else "None"}")
 
                 Row(modifier = Modifier.padding(16.dp)) {
-                    // Submit button
                     Button(
                         onClick = {
                             if (stressViewModel.selectedStressLevel != -1) {
-                                onSubmit(stressViewModel.selectedStressLevel) // Pass the selected level
+                                val timestamp = System.currentTimeMillis().toString()
+
+                                coroutineScope.launch {
+                                    stressViewModel.addStressData(
+                                        context,  // Pass context to save the CSV
+                                        timestamp,
+                                        stressViewModel.selectedStressLevel
+                                    )
+                                }
+
+                                onSubmit(stressViewModel.selectedStressLevel)
                             }
                         },
                         modifier = Modifier.padding(end = 16.dp),
-                        enabled = stressViewModel.selectedStressLevel != -1 // Disable button if no selection
+                        enabled = stressViewModel.selectedStressLevel != -1
                     ) {
                         Text("Submit")
                     }
 
-                    // More Images button (load the next page of images)
                     Button(
-                        onClick = { stressViewModel.loadNextPage() }, // Increment the page to show the next set of images
-                        enabled = stressViewModel.hasMoreImages // Disable if no more images
+                        onClick = { stressViewModel.loadNextPage() },
+                        enabled = stressViewModel.hasMoreImages
                     ) {
                         Text("More Images")
                     }

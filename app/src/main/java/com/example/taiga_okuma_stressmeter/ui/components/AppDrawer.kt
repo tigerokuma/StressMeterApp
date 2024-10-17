@@ -16,15 +16,14 @@ import androidx.navigation.NavController
 
 @Composable
 fun AppDrawer(
-    modifier: Modifier = Modifier,  // Modifier to control the size, background, etc.
-    onDestinationClicked: (String) -> Unit // Lambda to handle navigation
+    modifier: Modifier = Modifier,
+    onDestinationClicked: (String) -> Unit
 ) {
     Column(
         modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Drawer header
         Text(
             text = "StressMeter",
             style = MaterialTheme.typography.headlineLarge,
@@ -34,17 +33,15 @@ fun AppDrawer(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Stress Meter option
         TextButton(
-            onClick = { onDestinationClicked("stressMeter") }, // Navigate to StressMeterScreen
+            onClick = { onDestinationClicked("stressMeter") },
             modifier = Modifier.fillMaxWidth().padding(8.dp)
         ) {
             Text("Stress Meter", color = Color.Black)
         }
 
-        // Results option
         TextButton(
-            onClick = { onDestinationClicked("results") }, // Navigate to ResultScreen
+            onClick = { onDestinationClicked("results") },
             modifier = Modifier.fillMaxWidth().padding(8.dp)
         ) {
             Text("Results", color = Color.Black)
