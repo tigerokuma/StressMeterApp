@@ -66,9 +66,7 @@ class MainActivity : ComponentActivity() {
                         },
                         content = { paddingValues ->
                             // Main content including navigation
-                            AppNavigation(navController, onSubmit = { stressLevel ->
-                                // Handle onSubmit action
-                            })
+                            AppNavigation(navController)  // Removed the onSubmit argument
                         }
                     )
                 }

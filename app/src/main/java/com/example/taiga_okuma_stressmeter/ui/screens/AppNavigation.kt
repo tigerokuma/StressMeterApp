@@ -13,7 +13,7 @@ import com.example.taiga_okuma_stressmeter.ui.viewmodel.StressViewModel
 import com.example.taiga_okuma_stressmeter.data.StressData  // Ensure this is the correct import
 
 @Composable
-fun AppNavigation(navController: NavHostController, onSubmit: (Int) -> Unit) {
+fun AppNavigation(navController: NavHostController) {  // Removed onSubmit parameter from here
     val stressViewModel: StressViewModel = viewModel()
     val stressData by remember { derivedStateOf { stressViewModel.getStressData() } }
 
@@ -24,7 +24,6 @@ fun AppNavigation(navController: NavHostController, onSubmit: (Int) -> Unit) {
                 onImageClick = { imageResId ->
                     navController.navigate("stressDetail/$imageResId")
                 },
-                onSubmit = onSubmit,
                 stressViewModel = stressViewModel,
                 context = LocalContext.current
             )
@@ -52,8 +51,6 @@ fun AppNavigation(navController: NavHostController, onSubmit: (Int) -> Unit) {
             )
         }
 
-
-
         // Results Screen Route
         composable("results") {
             val context = LocalContext.current
@@ -69,8 +66,8 @@ fun AppNavigation(navController: NavHostController, onSubmit: (Int) -> Unit) {
             }
         }
     }
-
 }
+
 fun getStressLevelByImageId(imageResId: Int): Int {
     return when (imageResId) {
         R.drawable.psm_stressed_person -> 1
