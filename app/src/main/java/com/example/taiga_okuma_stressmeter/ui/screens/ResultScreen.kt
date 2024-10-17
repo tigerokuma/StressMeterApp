@@ -1,27 +1,28 @@
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Paint
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.taiga_okuma_stressmeter.data.StressData  // Ensure this is the correct import
-
-data class StressData(
-    val timestamp: String,
-    val stressLevel: Int
-)
+import com.example.taiga_okuma_stressmeter.data.StressData
 
 @Composable
 fun ResultScreen(stressData: List<StressData>) {
-    Column(modifier = Modifier.padding(16.dp)) {
+    val scrollState = rememberScrollState()
+
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .verticalScroll(scrollState)  // Enable scrolling
+    ) {
         if (stressData.isEmpty()) {
             // Show this message if there's no stress data to display
             Text(text = "No stress data available.", fontSize = 18.sp)
