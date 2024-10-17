@@ -4,11 +4,16 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.rememberNavController
 import com.example.taiga_okuma_stressmeter.ui.components.AppDrawer
@@ -23,62 +28,49 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             Taiga_Okuma_StressMeterTheme {
-                // SnackbarHostState to manage snackbars
-                val snackbarHostState = remember { SnackbarHostState() }
+                val drawerState = rememberDrawerState(DrawerValue.Closed) // Ensure drawer starts closed
                 val scope = rememberCoroutineScope()
-
-                // Navigation controller
                 val navController = rememberNavController()
 
-                // Drawer state for opening/closing the drawer
-                val drawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
-
-                // ModalNavigationDrawer for handling the drawer
                 ModalNavigationDrawer(
                     drawerState = drawerState,
                     drawerContent = {
-                        AppDrawer(navController)  // Drawer content
+                        // Limit the width to 50% of the screen with white opacity background
+                        AppDrawer(
+                            modifier = Modifier
+                                .width(180.dp) // Half the screen width (adjust as necessary)
+                                .background(Color.White.copy(alpha = 0.8f)) // White with opacity
+                        ) {
+                            navController.navigate(it)
+                            scope.launch { drawerState.close() } // Close drawer when item is clicked
+                        }
                     }
                 ) {
-                    // Scaffold for Material 3 with SnackbarHost
                     Scaffold(
                         topBar = {
                             TopAppBar(
-                                title = { Text("Stress Meter") }
+                                title = { Text("Stress Meter") },
+                                navigationIcon = {
+                                    IconButton(onClick = {
+                                        scope.launch {
+                                            drawerState.open() // Open the drawer on user click
+                                        }
+                                    }) {
+                                        Icon(
+                                            imageVector = Icons.Default.Menu,
+                                            contentDescription = "Menu"
+                                        )
+                                    }
+                                }
                             )
                         },
-                        snackbarHost = {
-                            SnackbarHost(snackbarHostState)  // Host for snackbars
-                        },
-                    ) {
-                        // Main content and navigation
-                        AppNavigation(navController = navController, onSubmit = { stressLevel ->
-                            // Handle the submitted stress level here
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    message = "Stress level $stressLevel submitted!",
-                                    actionLabel = "Dismiss",
-                                    duration = SnackbarDuration.Short
-                                )
-                            }
-                        })
-
-                        // Example button to trigger a snackbar
-                        Button(
-                            onClick = {
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        message = "This is a snackbar!",
-                                        actionLabel = "Dismiss",
-                                        duration = SnackbarDuration.Short
-                                    )
-                                }
-                            },
-                            modifier = Modifier.padding(16.dp)
-                        ) {
-                            Text("Show Snackbar")
+                        content = { paddingValues ->
+                            // Main content including navigation
+                            AppNavigation(navController, onSubmit = { stressLevel ->
+                                // Handle onSubmit action
+                            })
                         }
-                    }
+                    )
                 }
             }
         }
