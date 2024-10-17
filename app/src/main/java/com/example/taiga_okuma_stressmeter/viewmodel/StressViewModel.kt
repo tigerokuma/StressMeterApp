@@ -1,11 +1,13 @@
 package com.example.taiga_okuma_stressmeter.ui.viewmodel
 
-import StressData
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import com.example.taiga_okuma_stressmeter.R
+import com.example.taiga_okuma_stressmeter.util.CSVUtil
+import com.example.taiga_okuma_stressmeter.data.StressData
 
 class StressViewModel : ViewModel() {
 
@@ -19,6 +21,7 @@ class StressViewModel : ViewModel() {
 
     // Images per page
     val imagesPerPage = 16
+
 
     // All images
     val allImages = listOf(
@@ -74,16 +77,25 @@ class StressViewModel : ViewModel() {
     )
 
     // Stress data storage
-    private val stressDataList = mutableListOf<StressData>()
+    var stressDataList by mutableStateOf<List<StressData>>(emptyList())
+        private set
 
     // Function to return stress data
-    fun getStressData(): List<StressData> {
-        return stressDataList
+    fun getStressData(): List<StressData> = stressDataList
+
+    fun addStressData(context: Context, timestamp: String, stressLevel: Int) {
+        // Add data to the in-memory list
+        stressDataList = stressDataList + StressData(timestamp, stressLevel)
+
+        // Call utility function to save the data to CSV
+        CSVUtil.saveStressData(context, StressData(timestamp, stressLevel))
     }
 
-    // Function to add a new stress entry
-    fun addStressData(timestamp: String, stressLevel: Int) {
-        stressDataList.add(StressData(timestamp, stressLevel))
+
+
+    // Function to load stress data from CSV
+    fun loadStressData(context: Context) {
+        stressDataList = CSVUtil.loadStressData(context)
     }
 
     // Get the current set of images (for the current page)
@@ -94,6 +106,10 @@ class StressViewModel : ViewModel() {
     val hasMoreImages: Boolean
         get() = (currentPage + 1) * imagesPerPage < allImages.size
 
+    // Select stress level based on image click
+    fun selectStressLevel(level: Int) {
+        selectedStressLevel = level
+    }
 
     // Load the next set of images
     fun loadNextPage() {

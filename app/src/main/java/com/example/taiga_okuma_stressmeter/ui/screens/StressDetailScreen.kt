@@ -4,13 +4,11 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -21,7 +19,7 @@ import com.example.taiga_okuma_stressmeter.R
 @Composable
 fun StressDetailScreen(
     imageResId: Int,  // Receive the image resource ID
-    onSubmit: () -> Unit,
+    onSubmit: () -> Unit,  // Change to regular lambda
     onCancel: () -> Unit
 ) {
     Scaffold(
@@ -37,7 +35,7 @@ fun StressDetailScreen(
                     .padding(innerPadding)
                     .padding(16.dp)
             ) {
-                // Display the selected image in the center
+                // Display the selected image
                 Image(
                     painter = painterResource(id = imageResId),
                     contentDescription = "Selected Stress Image",
@@ -65,7 +63,7 @@ fun StressDetailScreen(
 
                     // Submit Button
                     Button(
-                        onClick = onSubmit
+                        onClick = onSubmit  // Use the submit action
                     ) {
                         Text("Submit")
                     }
@@ -74,6 +72,7 @@ fun StressDetailScreen(
         }
     )
 }
+
 
 
 
