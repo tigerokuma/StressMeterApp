@@ -4,12 +4,17 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -19,6 +24,11 @@ import com.example.taiga_okuma_stressmeter.R
 @Composable
 fun StressMeterScreen(onSubmit: (Int) -> Unit) {
     val selectedStressLevel = remember { mutableStateOf(-1) }
+    var currentPage by remember { mutableStateOf(0) }  // Keep track of the current page (to load more images)
+
+    // Get the list of images in batches of 16
+    val imagesPerPage = 16
+    val currentImages = getLocalImages().drop(currentPage * imagesPerPage).take(imagesPerPage)
 
     Column(
         modifier = Modifier.fillMaxSize().padding(16.dp)
@@ -28,18 +38,25 @@ fun StressMeterScreen(onSubmit: (Int) -> Unit) {
             modifier = Modifier.padding(16.dp)
         )
 
-        // Display a grid of local images from the drawable directory
-        LazyColumn {
-            itemsIndexed(getLocalImages()) { index, imageResId ->
+        // Display a 4x4 grid of images from local drawable resources
+        LazyVerticalGrid(
+            columns = GridCells.Fixed(4), // 4 columns
+            modifier = Modifier.fillMaxSize().padding(8.dp),
+            contentPadding = PaddingValues(8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp), // Spacing between rows
+            horizontalArrangement = Arrangement.spacedBy(8.dp) // Spacing between columns
+        ) {
+            itemsIndexed(currentImages) { index, imageResId ->
+                // Map stress levels from 1 to 16, starting from the current page index
+                val stressLevel = currentPage * imagesPerPage + index + 1
+
                 Image(
-                    painter = painterResource(id = imageResId), // Load local images using painterResource
-                    contentDescription = "Stress Image $index",
+                    painter = painterResource(id = imageResId),  // Load images from drawable
+                    contentDescription = "Stress Image $stressLevel",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(100.dp)
-                        .padding(8.dp)
-                        .clickable { selectedStressLevel.value = index + 1 } // Update stress level on click
+                        .aspectRatio(1f)  // Ensures images have a 1:1 aspect ratio
+                        .clickable { selectedStressLevel.value = stressLevel } // Update stress level on click
                 )
             }
         }
@@ -49,20 +66,30 @@ fun StressMeterScreen(onSubmit: (Int) -> Unit) {
         // Show the selected stress level and a submit button
         Text("Selected Stress Level: ${if (selectedStressLevel.value != -1) selectedStressLevel.value else "None"}")
 
-        Button(
-            onClick = {
-                if (selectedStressLevel.value != -1) {
-                    onSubmit(selectedStressLevel.value) // Pass the selected level
-                }
-            },
-            modifier = Modifier.padding(16.dp),
-            enabled = selectedStressLevel.value != -1 // Disable button if no selection
-        ) {
-            Text("Submit")
+        Row(modifier = Modifier.padding(16.dp)) {
+            // Submit button
+            Button(
+                onClick = {
+                    if (selectedStressLevel.value != -1) {
+                        onSubmit(selectedStressLevel.value) // Pass the selected level
+                    }
+                },
+                modifier = Modifier.padding(end = 16.dp),
+                enabled = selectedStressLevel.value != -1 // Disable button if no selection
+            ) {
+                Text("Submit")
+            }
+
+            // More Images button (load the next page of images)
+            Button(
+                onClick = { currentPage++ }, // Increment the page to show the next set of images
+                enabled = (currentPage + 1) * imagesPerPage < getLocalImages().size // Disable if no more images
+            ) {
+                Text("More Images")
+            }
         }
     }
 }
-
 // Function to provide a list of drawable resource IDs
 fun getLocalImages(): List<Int> {
     return listOf(
