@@ -12,8 +12,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import coil.compose.rememberImagePainter
+import com.example.taiga_okuma_stressmeter.R
 
 @Composable
 fun StressMeterScreen(onSubmit: (Int) -> Unit) {
@@ -27,11 +28,11 @@ fun StressMeterScreen(onSubmit: (Int) -> Unit) {
             modifier = Modifier.padding(16.dp)
         )
 
-        // Display a grid of images
+        // Display a grid of local images from the drawable directory
         LazyColumn {
-            itemsIndexed(getImageUrls()) { index, imageUrl ->
+            itemsIndexed(getLocalImages()) { index, imageResId ->
                 Image(
-                    painter = rememberImagePainter(data = imageUrl),
+                    painter = painterResource(id = imageResId), // Load local images using painterResource
                     contentDescription = "Stress Image $index",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -62,12 +63,57 @@ fun StressMeterScreen(onSubmit: (Int) -> Unit) {
     }
 }
 
-// Mock function to provide a list of image URLs (replace with actual image references)
-fun getImageUrls(): List<String> {
+// Function to provide a list of drawable resource IDs
+fun getLocalImages(): List<Int> {
     return listOf(
-        "https://link_to_image_1.jpg",
-        "https://link_to_image_2.jpg",
-        "https://link_to_image_3.jpg",
-        "https://link_to_image_4.jpg"
+        R.drawable.fish_normal017,
+        R.drawable.psm_alarm_clock,
+        R.drawable.psm_alarm_clock2,
+        R.drawable.psm_angry_face,
+        R.drawable.psm_anxious,
+        R.drawable.psm_baby_sleeping,
+        R.drawable.psm_bar,
+        R.drawable.psm_barbed_wire2,
+        R.drawable.psm_beach3,
+        R.drawable.psm_bird3,
+        R.drawable.psm_blue_drop,
+        R.drawable.psm_cat,
+        R.drawable.psm_clutter,
+        R.drawable.psm_clutter3,
+        R.drawable.psm_dog_sleeping,
+        R.drawable.psm_exam4,
+        R.drawable.psm_gambling4,
+        R.drawable.psm_headache,
+        R.drawable.psm_headache2,
+        R.drawable.psm_hiking3,
+        R.drawable.psm_kettle,
+        R.drawable.psm_lake3,
+        R.drawable.psm_lawn_chairs3,
+        R.drawable.psm_lonely,
+        R.drawable.psm_lonely2,
+        R.drawable.psm_mountains11,
+        R.drawable.psm_neutral_child,
+        R.drawable.psm_neutral_person2,
+        R.drawable.psm_peaceful_person,
+        R.drawable.psm_puppy,
+        R.drawable.psm_puppy3,
+        R.drawable.psm_reading_in_bed2,
+        R.drawable.psm_running3,
+        R.drawable.psm_running4,
+        R.drawable.psm_sticky_notes2,
+        R.drawable.psm_stressed_cat,
+        R.drawable.psm_stressed_person,
+        R.drawable.psm_stressed_person12,
+        R.drawable.psm_stressed_person3,
+        R.drawable.psm_stressed_person4,
+        R.drawable.psm_stressed_person6,
+        R.drawable.psm_stressed_person7,
+        R.drawable.psm_stressed_person8,
+        R.drawable.psm_talking_on_phone2,
+        R.drawable.psm_to_do_list,
+        R.drawable.psm_to_do_list3,
+        R.drawable.psm_wine3,
+        R.drawable.psm_work4,
+        R.drawable.psm_yoga4
     )
 }
