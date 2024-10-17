@@ -1,5 +1,6 @@
 package com.example.taiga_okuma_stressmeter.ui.screens
 
+import ResultScreen
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -15,7 +16,7 @@ fun AppNavigation(navController: NavHostController, onSubmit: (Int) -> Unit) {
     NavHost(navController, startDestination = "stressMeter") {
         composable("stressMeter") {
             StressMeterScreen(
-                onImageClick = { imageResId ->  // Pass the clicked image resource ID
+                onImageClick = { imageResId ->
                     navController.navigate("stressDetail/$imageResId")
                 },
                 onSubmit = onSubmit,
@@ -23,21 +24,24 @@ fun AppNavigation(navController: NavHostController, onSubmit: (Int) -> Unit) {
             )
         }
 
-        // Detail Screen Route: stressDetail/{imageResId}
+        // Detail Screen Route
         composable("stressDetail/{imageResId}") { backStackEntry ->
             val imageResId = backStackEntry.arguments?.getString("imageResId")?.toInt() ?: R.drawable.psm_stressed_person
             StressDetailScreen(
-                imageResId = imageResId,  // Use imageResId directly
+                imageResId = imageResId,
                 onSubmit = {
-                    navController.popBackStack()  // Return to the StressMeter screen after submitting
+                    navController.popBackStack()
                 },
                 onCancel = {
-                    navController.popBackStack()  // Simply go back to the StressMeter screen
+                    navController.popBackStack()
                 }
             )
         }
+
+        // Results Screen Route
+        composable("results") {
+            val stressData = stressViewModel.getStressData()  // Fetching stress data from ViewModel
+            ResultScreen(stressData = stressData)
+        }
     }
 }
-
-
-

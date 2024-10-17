@@ -1,5 +1,6 @@
 package com.example.taiga_okuma_stressmeter.ui.viewmodel
 
+import StressData
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.getValue
@@ -72,6 +73,19 @@ class StressViewModel : ViewModel() {
         R.drawable.psm_yoga4
     )
 
+    // Stress data storage
+    private val stressDataList = mutableListOf<StressData>()
+
+    // Function to return stress data
+    fun getStressData(): List<StressData> {
+        return stressDataList
+    }
+
+    // Function to add a new stress entry
+    fun addStressData(timestamp: String, stressLevel: Int) {
+        stressDataList.add(StressData(timestamp, stressLevel))
+    }
+
     // Get the current set of images (for the current page)
     val currentImages: List<Int>
         get() = allImages.drop(currentPage * imagesPerPage).take(imagesPerPage)
@@ -80,10 +94,6 @@ class StressViewModel : ViewModel() {
     val hasMoreImages: Boolean
         get() = (currentPage + 1) * imagesPerPage < allImages.size
 
-    // Select stress level based on image click
-    fun selectStressLevel(level: Int) {
-        selectedStressLevel = level
-    }
 
     // Load the next set of images
     fun loadNextPage() {
@@ -91,4 +101,5 @@ class StressViewModel : ViewModel() {
             currentPage++
         }
     }
+
 }
