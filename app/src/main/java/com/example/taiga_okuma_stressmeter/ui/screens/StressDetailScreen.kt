@@ -4,10 +4,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -17,7 +20,7 @@ import com.example.taiga_okuma_stressmeter.R
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StressDetailScreen(
-    stressLevel: Int,
+    imageResId: Int,  // Receive the image resource ID
     onSubmit: () -> Unit,
     onCancel: () -> Unit
 ) {
@@ -34,13 +37,10 @@ fun StressDetailScreen(
                     .padding(innerPadding)
                     .padding(16.dp)
             ) {
-                // Show the selected image
-                Text("Selected Stress Level: $stressLevel")
-
                 // Display the selected image in the center
                 Image(
-                    painter = painterResource(id = getImageByStressLevel(stressLevel)),
-                    contentDescription = "Selected Stress Level Image",
+                    painter = painterResource(id = imageResId),
+                    contentDescription = "Selected Stress Image",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -50,25 +50,32 @@ fun StressDetailScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Row {
-                    Button(
-                        onClick = onSubmit,  // Submit the selected stress level
-                        modifier = Modifier.padding(16.dp)
-                    ) {
-                        Text("Submit")
-                    }
-
-                    Button(
-                        onClick = onCancel,  // Cancel and go back
-                        modifier = Modifier.padding(16.dp)
+                // Center the buttons
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    // Cancel Button
+                    OutlinedButton(
+                        onClick = onCancel,
+                        modifier = Modifier.padding(end = 16.dp)
                     ) {
                         Text("Cancel")
+                    }
+
+                    // Submit Button
+                    Button(
+                        onClick = onSubmit
+                    ) {
+                        Text("Submit")
                     }
                 }
             }
         }
     )
 }
+
+
 
 // Function to return the drawable resource based on stress level
 fun getImageByStressLevel(stressLevel: Int): Int {

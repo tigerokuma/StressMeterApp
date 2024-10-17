@@ -21,9 +21,9 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StressMeterScreen(
-    onImageClick: (Int) -> Unit,  // Pass stress level when an image is clicked
     onSubmit: (Int) -> Unit,
-    stressViewModel: StressViewModel = viewModel() // Inject the ViewModel
+    stressViewModel: StressViewModel = viewModel(),
+    onImageClick: (Int) -> Unit  // Updated to pass the image resource ID
 ) {
     Scaffold(
         topBar = {
@@ -52,17 +52,15 @@ fun StressMeterScreen(
                     horizontalArrangement = Arrangement.spacedBy(4.dp) // Spacing between columns
                 ) {
                     itemsIndexed(stressViewModel.currentImages) { index, imageResId ->
-                        // Map stress levels from 1 to 16, starting from the current page index
-                        val stressLevel = stressViewModel.currentPage * stressViewModel.imagesPerPage + index + 1
-
                         Image(
                             painter = painterResource(id = imageResId),  // Load images from drawable
-                            contentDescription = "Stress Image $stressLevel",
+                            contentDescription = "Stress Image $imageResId",
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .aspectRatio(1f)  // Ensures images have a 1:1 aspect ratio
                                 .clickable {
-                                    onImageClick(stressLevel)  // Trigger navigation on image click
+                                    // Pass the actual image resource ID on click
+                                    onImageClick(imageResId)
                                 }
                         )
                     }
@@ -99,4 +97,3 @@ fun StressMeterScreen(
         }
     )
 }
-
