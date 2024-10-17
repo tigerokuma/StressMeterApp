@@ -52,7 +52,16 @@ class MainActivity : ComponentActivity() {
                         },
                     ) {
                         // Main content and navigation
-                        AppNavigation(navController)
+                        AppNavigation(navController = navController, onSubmit = { stressLevel ->
+                            // Handle the submitted stress level here
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "Stress level $stressLevel submitted!",
+                                    actionLabel = "Dismiss",
+                                    duration = SnackbarDuration.Short
+                                )
+                            }
+                        })
 
                         // Example button to trigger a snackbar
                         Button(

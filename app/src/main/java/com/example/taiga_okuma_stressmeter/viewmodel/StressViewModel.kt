@@ -20,7 +20,7 @@ class StressViewModel : ViewModel() {
     val imagesPerPage = 16
 
     // All images
-    private val allImages = listOf(
+    val allImages = listOf(
         R.drawable.fish_normal017,
         R.drawable.psm_alarm_clock,
         R.drawable.psm_alarm_clock2,

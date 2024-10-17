@@ -8,16 +8,20 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.taiga_okuma_stressmeter.ui.viewmodel.StressViewModel
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StressMeterScreen(
+    onImageClick: (Int) -> Unit,  // Pass stress level when an image is clicked
     onSubmit: (Int) -> Unit,
     stressViewModel: StressViewModel = viewModel() // Inject the ViewModel
 ) {
@@ -57,7 +61,9 @@ fun StressMeterScreen(
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                 .aspectRatio(1f)  // Ensures images have a 1:1 aspect ratio
-                                .clickable { stressViewModel.selectStressLevel(stressLevel) } // Update stress level on click
+                                .clickable {
+                                    onImageClick(stressLevel)  // Trigger navigation on image click
+                                }
                         )
                     }
                 }
@@ -93,3 +99,4 @@ fun StressMeterScreen(
         }
     )
 }
+
