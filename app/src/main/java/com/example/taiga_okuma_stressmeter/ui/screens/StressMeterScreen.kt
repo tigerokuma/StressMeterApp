@@ -3,9 +3,10 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.media.MediaPlayer
+import android.media.Ringtone
 import android.media.RingtoneManager
 import android.os.Build
+import android.os.Looper
 import android.os.VibrationEffect
 import android.os.Vibrator
 import androidx.annotation.RequiresApi
@@ -29,6 +30,10 @@ import com.example.taiga_okuma_stressmeter.MainActivity
 import com.example.taiga_okuma_stressmeter.R
 import com.example.taiga_okuma_stressmeter.ui.viewmodel.StressViewModel
 import kotlinx.coroutines.launch
+import android.os.Handler
+
+private var ringtone: Ringtone? = null
+private var handler: Handler? = null
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -39,12 +44,13 @@ fun StressMeterScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
 
-    // Create notification channel and other side effects when the screen is opened
-    LaunchedEffect(Unit) {
-        (context as? MainActivity)?.createNotificationChannel()  // Create notification channel in the main activity
-        sendNotification(context)  // Send notification
-        playSound(context)  // Play sound when screen opens
-        vibratePhone(context)  // Vibrate phone when screen opens
+    // Start and stop the sound with proper lifecycle management
+    DisposableEffect(Unit) {
+        playSound(context)  // Play looping sound when entering the screen
+
+        onDispose {
+            stopSound()  // Stop the sound when exiting the screen
+        }
     }
 
     Scaffold(
@@ -74,7 +80,7 @@ fun StressMeterScreen(
                         verticalArrangement = Arrangement.spacedBy(4.dp),
                         horizontalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        itemsIndexed(stressViewModel.currentImages) { index, imageResId ->
+                        itemsIndexed(stressViewModel.currentImages) { _, imageResId ->
                             Image(
                                 painter = painterResource(id = imageResId),
                                 contentDescription = "Stress Image $imageResId",
@@ -108,6 +114,7 @@ fun StressMeterScreen(
         }
     )
 }
+
 
 fun sendNotification(context: Context) {
     val channelId = "stress_notification_channel"
@@ -165,9 +172,33 @@ private fun vibratePhone(context: Context) {
     }
 }
 
-// Play sound function using built-in notification sound
+// Play sound function using built-in notification sound with loop
 private fun playSound(context: Context) {
-    val notificationUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)  // Use system notification sound
-    val ringtone = RingtoneManager.getRingtone(context, notificationUri)
-    ringtone.play()
+    val notificationUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
+    ringtone = RingtoneManager.getRingtone(context, notificationUri)
+
+    // Create the Handler for looping
+    handler = Handler(Looper.getMainLooper())
+
+    // Function to play the ringtone in a loop
+    fun playRingtoneInLoop() {
+        ringtone?.play()
+
+        // Schedule the next play based on the ringtone's duration
+        handler?.postDelayed({
+            if (ringtone?.isPlaying == false) {
+                playRingtoneInLoop()  // Replay the ringtone when it finishes
+            }
+        }, 2000)  // Adjust the delay for looping, e.g., 2 seconds
+    }
+
+    playRingtoneInLoop()  // Start the loop
+}
+
+// Stop the looping sound
+private fun stopSound() {
+    ringtone?.stop()
+    handler?.removeCallbacksAndMessages(null)  // Stop the handler
+    ringtone = null
+    handler = null
 }
