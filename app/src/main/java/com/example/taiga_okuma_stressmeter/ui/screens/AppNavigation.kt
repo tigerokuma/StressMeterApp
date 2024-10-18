@@ -1,6 +1,7 @@
 package com.example.taiga_okuma_stressmeter.ui.screens
 
 import ResultScreen
+import StressMeterScreen
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
