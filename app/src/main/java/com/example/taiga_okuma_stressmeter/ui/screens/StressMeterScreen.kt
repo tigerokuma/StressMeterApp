@@ -1,7 +1,11 @@
 import android.content.Context
 import android.media.RingtoneManager
+import android.os.Build
 import android.os.Handler
 import android.os.Looper
+import android.os.VibrationEffect
+import android.os.Vibrator
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -105,19 +109,32 @@ fun StressMeterScreen(
     )
 }
 
-// Play sound function using built-in notification sound with loop
 private var ringtone: android.media.Ringtone? = null
 private var handler: Handler? = null
 
+// Play sound function using built-in notification sound with loop and vibration
 private fun playSound(context: Context) {
     val notificationUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION)
     ringtone = RingtoneManager.getRingtone(context, notificationUri)
 
     handler = Handler(Looper.getMainLooper())
+    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
-    // Function to play the ringtone in a loop
+    // Function to play the ringtone in a loop and vibrate
     fun playRingtoneInLoop() {
         ringtone?.play()
+
+        // Vibrate phone while sound plays with backward compatibility for lower API levels
+        if (vibrator.hasVibrator()) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                // For API 26 and above
+                val vibrationEffect = VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE)
+                vibrator.vibrate(vibrationEffect)
+            } else {
+                // For API levels below 26
+                vibrator.vibrate(500)  // Vibrate for 500 milliseconds
+            }
+        }
 
         // Schedule the next play based on the ringtone's duration
         handler?.postDelayed({
@@ -130,7 +147,7 @@ private fun playSound(context: Context) {
     playRingtoneInLoop()
 }
 
-// Stop the looping sound
+// Stop the looping sound and stop vibration
 private fun stopSound() {
     ringtone?.stop()
     handler?.removeCallbacksAndMessages(null)  // Stop the handler
