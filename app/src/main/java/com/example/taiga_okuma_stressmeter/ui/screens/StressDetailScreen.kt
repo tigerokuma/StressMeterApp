@@ -72,29 +72,3 @@ fun StressDetailScreen(
         }
     )
 }
-
-
-
-
-// Function to return the drawable resource based on stress level
-fun getImageByStressLevel(stressLevel: Int): Int {
-    return when (stressLevel) {
-        1 -> R.drawable.psm_stressed_person
-        2 -> R.drawable.psm_alarm_clock
-        3 -> R.drawable.psm_angry_face
-        4 -> R.drawable.psm_anxious
-        5 -> R.drawable.psm_baby_sleeping
-        6 -> R.drawable.psm_bar
-        7 -> R.drawable.psm_beach3
-        8 -> R.drawable.psm_dog_sleeping
-        9 -> R.drawable.psm_gambling4
-        10 -> R.drawable.psm_headache
-        11 -> R.drawable.psm_hiking3
-        12 -> R.drawable.psm_lake3
-        13 -> R.drawable.psm_lonely
-        14 -> R.drawable.psm_peaceful_person
-        15 -> R.drawable.psm_reading_in_bed2
-        16 -> R.drawable.psm_running3
-        else -> R.drawable.psm_stressed_person  // Default image if no match
-    }
-}

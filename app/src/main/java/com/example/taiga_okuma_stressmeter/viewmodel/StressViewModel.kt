@@ -8,6 +8,8 @@ import androidx.compose.runtime.setValue
 import com.example.taiga_okuma_stressmeter.R
 import com.example.taiga_okuma_stressmeter.util.CSVUtil
 import com.example.taiga_okuma_stressmeter.data.StressData
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 class StressViewModel : ViewModel() {
 
@@ -86,34 +88,31 @@ class StressViewModel : ViewModel() {
     // Function to return stress data
     fun getStressData(): List<StressData> = stressDataList
 
-    fun addStressData(context: Context, timestamp: String, stressLevel: Int) {
-        // Add data to the in-memory list
-        stressDataList = stressDataList + StressData(timestamp, stressLevel)
+    // Saving stress data using coroutines to offload to background thread
+    suspend fun addStressData(context: Context, timestamp: String, stressLevel: Int) {
+        // Save the data in the background
+        withContext(Dispatchers.IO) {
+            CSVUtil.saveStressData(context, StressData(timestamp, stressLevel))
+        }
 
-        // Call utility function to save the data to CSV
-        CSVUtil.saveStressData(context, StressData(timestamp, stressLevel))
+        // Update in-memory list on the main thread after saving
+        stressDataList = stressDataList + StressData(timestamp, stressLevel)
     }
 
-    // Function to load stress data from CSV
-    fun loadStressData(context: Context) {
-        stressDataList = CSVUtil.loadStressData(context)
+    // Loading stress data using coroutines
+    suspend fun loadStressData(context: Context) {
+        // Load the data in the background
+        val loadedData = withContext(Dispatchers.IO) {
+            CSVUtil.loadStressData(context)
+        }
+
+        // Update in-memory list on the main thread after loading
+        stressDataList = loadedData
     }
 
     // Shuffle the image bank and get only 16 images
     fun shuffleImages() {
         currentImages = allImages.shuffled().take(imagesPerPage)
-    }
-
-    // Select stress level based on image click
-    fun selectStressLevel(level: Int) {
-        selectedStressLevel = level
-    }
-
-    // Load the next set of images (currently not needed, replaced by shuffling)
-    fun loadNextPage() {
-        if (hasMoreImages) {
-            currentPage++
-        }
     }
 
     // Check if there are more images to load

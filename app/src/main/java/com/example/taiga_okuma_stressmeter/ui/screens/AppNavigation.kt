@@ -12,6 +12,7 @@ import androidx.navigation.compose.composable
 import com.example.taiga_okuma_stressmeter.R
 import com.example.taiga_okuma_stressmeter.ui.viewmodel.StressViewModel
 import com.example.taiga_okuma_stressmeter.data.StressData  // Ensure this is the correct import
+import kotlinx.coroutines.launch
 
 @Composable
 fun AppNavigation(navController: NavHostController) {  // Removed onSubmit parameter from here
@@ -34,23 +35,30 @@ fun AppNavigation(navController: NavHostController) {  // Removed onSubmit param
         composable("stressDetail/{imageResId}") { backStackEntry ->
             val context = LocalContext.current  // Get context outside the lambda
             val imageResId = backStackEntry.arguments?.getString("imageResId")?.toInt() ?: R.drawable.psm_stressed_person
+            val coroutineScope = rememberCoroutineScope()  // Use coroutine scope instead of LaunchedEffect
+
             StressDetailScreen(
                 imageResId = imageResId,
                 onSubmit = {
                     // Handle submission here
                     val stressLevel = getStressLevelByImageId(imageResId)
-                    stressViewModel.addStressData(
-                        context = context,  // Use the context obtained earlier
-                        timestamp = System.currentTimeMillis().toString(),
-                        stressLevel = stressLevel
-                    )
-                    navController.popBackStack()  // Go back after submitting
+                    // Launch the call in a coroutine
+                    coroutineScope.launch {
+                        stressViewModel.addStressData(
+                            context = context,  // Use the context obtained earlier
+                            timestamp = System.currentTimeMillis().toString(),
+                            stressLevel = stressLevel
+                        )
+                        navController.popBackStack()  // Go back after submitting
+                    }
                 },
                 onCancel = {
                     navController.popBackStack()  // Go back on cancel
                 }
             )
         }
+
+
 
         // Results Screen Route
         composable("results") {
